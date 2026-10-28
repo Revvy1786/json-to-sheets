@@ -1,10 +1,10 @@
 # JSON → Sheets
 
-![tests](https://github.com/YOUR-USERNAME/json-to-sheets/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/Revvy1786/json-to-sheets/actions/workflows/tests.yml/badge.svg)
 
 A small browser tool that turns JSON — typically an API response — into a table you can paste into Google Sheets or Excel, or download as CSV.
 
-**Live demo:** https://YOUR-USERNAME.github.io/json-to-sheets/
+**Live demo:** https://Revvy1786.github.io/json-to-sheets/
 
 ![Demo](docs/demo.gif)
 
@@ -20,7 +20,7 @@ The data is stored *by column*: three parallel arrays. To compare values, spot g
 
 ## How to use it
 
-1. Open the [live demo](https://YOUR-USERNAME.github.io/json-to-sheets/), or `index.html` locally — no install needed.
+1. Open the [live demo](https://Revvy1786.github.io/json-to-sheets/), or `index.html` locally — no install needed.
 2. Paste your JSON, or click **Load example**.
 3. Click **Convert**.
 4. **Copy for Sheets** → select cell A1 in Google Sheets → paste. Or **Download CSV**.
