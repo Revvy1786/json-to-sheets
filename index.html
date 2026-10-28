@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to Google Sheets Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    JSON → Google Sheets Converter
+                </h1>
+                <p class="text-gray-600">
+                    Incolla il tuo JSON e ottieni i dati pronti per Google Sheets
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Input JSON -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Incolla il JSON qui:
+                    </label>
+                    <textarea
+                        id="jsonInput"
+                        placeholder='{"items": [{"value": {"date": [...], "price": [...], "propertyId": [...]}}]}'
+                        class="w-full h-96 p-4 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-mono text-sm"
+                    ></textarea>
+                    
+                    <button
+                        id="convertBtn"
+                        class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Converti
+                    </button>
+                </div>
+
+                <!-- Output Result -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Risultato:
+                    </label>
+                    
+                    <div id="errorBox" class="hidden bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-4">
+                        <p id="errorText" class="text-red-700 text-sm"></p>
+                    </div>
+                    
+                    <div id="resultBox" class="hidden">
+                        <div class="border-2 border-gray-300 rounded-lg overflow-hidden mb-4">
+                            <div class="overflow-auto h-80">
+                                <table class="w-full text-sm" id="resultTable">
+                                    <thead class="bg-indigo-600 text-white sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left">Date</th>
+                                            <th class="px-4 py-2 text-left">Price</th>
+                                            <th class="px-4 py-2 text-left">Property ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button
+                                id="copyBtn"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span id="copyBtnText">Copia per Sheets</span>
+                            </button>
+                            
+                            <button
+                                id="downloadBtn"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                            >
+                                Download CSV
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-sm text-blue-800 font-semibold mb-1">
+                                📋 Come usare:
+                            </p>
+                            <ol class="text-sm text-blue-700 space-y-1 ml-4 list-decimal">
+                                <li>Clicca su "Copia per Sheets"</li>
+                                <li>Apri il tuo Google Sheet</li>
+                                <li>Seleziona la cella A1</li>
+                                <li>Incolla (Ctrl+V o Cmd+V)</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div id="emptyBox" class="h-96 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-300 rounded-lg">
+                        <p>Il risultato apparirà qui</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-gray-50 rounded-lg p-6">
+                <h3 class="font-semibold text-gray-700 mb-3">💡 Formati JSON supportati:</h3>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2 font-semibold">Formato 1: Con items array</p>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded text-xs overflow-x-auto">{
+  "items": [{
+    "value": {
+      "date": ["2024-03-25", "2024-03-26"],
+      "price": [100, 150],
+      "propertyId": [101, 102]
+    }
+  }]
+}</pre>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2 font-semibold">Formato 2: Con value diretto</p>
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded text-xs overflow-x-auto">{
+  "value": {
+    "date": ["2024-03-25", "2024-03-26"],
+    "price": [100, 150],
+    "propertyId": [101, 102]
+  }
+}</pre>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mt-3">
+                    Il tool ignora automaticamente tutti gli altri campi nel JSON (metadata, spec, status, ecc.)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentResult = null;
+
+        document.getElementById('convertBtn').addEventListener('click', processJson);
+        document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+        document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+
+        function processJson() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            const errorBox = document.getElementById('errorBox');
+            const resultBox = document.getElementById('resultBox');
+            const emptyBox = document.getElementById('emptyBox');
+            const errorText = document.getElementById('errorText');
+
+            // Reset
+            errorBox.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            emptyBox.classList.remove('hidden');
+            currentResult = null;
+
+            if (!jsonInput.trim()) {
+                return;
+            }
+
+            try {
+                const data = JSON.parse(jsonInput);
+                
+                // Trova l'oggetto con la struttura date/price/propertyId
+                let value = null;
+                
+                // Caso 1: items[0].value (struttura con items array)
+                if (data.items && Array.isArray(data.items) && data.items.length > 0 && data.items[0].value) {
+                    value = data.items[0].value;
+                }
+                // Caso 2: value diretto
+                else if (data.value) {
+                    value = data.value;
+                }
+                // Caso 3: root diretto
+                else if (data.date && data.price && data.propertyId) {
+                    value = data;
+                }
+                
+                if (!value) {
+                    showError('Struttura JSON non riconosciuta. Assicurati che contenga items[0].value o value con date, price e propertyId');
+                    return;
+                }
+                
+                // Verifica che abbia le chiavi necessarie
+                if (!value.date || !value.price || !value.propertyId) {
+                    showError('Il JSON deve contenere le chiavi: date, price e propertyId');
+                    return;
+                }
+                
+                // Crea la tabella
+                const dates = value.date;
+                const prices = value.price;
+                const properties = value.propertyId;
+                
+                // Verifica che abbiano la stessa lunghezza
+                if (dates.length !== prices.length || dates.length !== properties.length) {
+                    showError('Gli array date, price e propertyId devono avere la stessa lunghezza');
+                    return;
+                }
+                
+                // Crea i dati tabulari
+                currentResult = dates.map((date, index) => ({
+                    date: date,
+                    price: prices[index],
+                    propertyId: properties[index]
+                }));
+                
+                displayResult(currentResult);
+                
+            } catch (err) {
+                showError('Errore nel parsing del JSON: ' + err.message);
+            }
+        }
+
+        function showError(message) {
+            const errorBox = document.getElementById('errorBox');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorBox.classList.remove('hidden');
+        }
+
+        function displayResult(data) {
+            const resultBox = document.getElementById('resultBox');
+            const emptyBox = document.getElementById('emptyBox');
+            const resultBody = document.getElementById('resultBody');
+
+            // Pulisci la tabella
+            resultBody.innerHTML = '';
+
+            // Aggiungi le righe
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+                tr.innerHTML = `
+                    <td class="px-4 py-2 border-b">${row.date}</td>
+                    <td class="px-4 py-2 border-b">${row.price}</td>
+                    <td class="px-4 py-2 border-b">${row.propertyId}</td>
+                `;
+                resultBody.appendChild(tr);
+            });
+
+            emptyBox.classList.add('hidden');
+            resultBox.classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            if (!currentResult) return;
+
+            // Crea il testo in formato TSV (Tab Separated Values)
+            let text = 'Date\tPrice\tProperty ID\n';
+            currentResult.forEach(row => {
+                text += `${row.date}\t${row.price}\t${row.propertyId}\n`;
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.getElementById('copyBtnText');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copiato!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function downloadCSV() {
+            if (!currentResult) return;
+
+            let csv = 'Date,Price,Property ID\n';
+            currentResult.forEach(row => {
+                csv += `${row.date},${row.price},${row.propertyId}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
