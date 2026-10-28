@@ -1,0 +1,4 @@
+bookingId,checkIn,nights,guest.country,guest.adults,channel,guest.children
+B-001,2024-05-10,3,IT,2,direct,
+B-002,2024-05-12,1,DE,1,ota,
+B-003,2024-05-15,5,CH,2,ota,1

@@ -1,0 +1,5 @@
+[
+  { "bookingId": "B-001", "checkIn": "2024-05-10", "nights": 3, "guest": { "country": "IT", "adults": 2 }, "channel": "direct" },
+  { "bookingId": "B-002", "checkIn": "2024-05-12", "nights": 1, "guest": { "country": "DE", "adults": 1 }, "channel": "ota" },
+  { "bookingId": "B-003", "checkIn": "2024-05-15", "nights": 5, "guest": { "country": "CH", "adults": 2, "children": 1 }, "channel": "ota" }
+]
